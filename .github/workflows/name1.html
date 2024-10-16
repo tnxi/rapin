@@ -1,11 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=http://imoviee.com/">
     <title>در حال انتقال ...</title>
 </head>
 <body>
-    <p>در حال ورود به بلبل جان 2 <a href="http://imoviee.com/">آدرس</a>.</p>
+    <p>در حال کش کردن صفحه آفلاین و ورود به سایت ...</p>
+
+    <script>
+        // ابتدا منابع کش می‌شوند
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+                
+                // پس از ثبت Service Worker و کش شدن منابع، ریدایرکت انجام می‌شود
+                caches.open('offline-cache-v1').then(function(cache) {
+                    return cache.addAll([
+                        '/offline-page.html',
+                        '/css/style.css',
+                        '/images/offline-icon.png',
+                        'https://fonts.googleapis.com/css?family=Roboto'
+                    ]);
+                }).then(function() {
+                    console.log('Resources cached successfully. Redirecting to main site.');
+                    // ریدایرکت به سایت اصلی
+                    window.location.href = 'http://imoviee.com/';
+                }).catch(function() {
+                    // اگر کش نشود، صفحه سفید نمایش داده می‌شود
+                    document.body.innerHTML = '<h1>خطا: نمی‌توان صفحه را کش کرد.</h1>';
+                });
+            }).catch(function(error) {
+                console.log('Service Worker registration failed:', error);
+                // اگر Service Worker ثبت نشود، صفحه سفید نمایش داده می‌شود
+                document.body.innerHTML = '<h1>خطا: نمی‌توان به سایت منتقل شد.</h1>';
+            });
+        } else {
+            // اگر مرورگر Service Worker را پشتیبانی نمی‌کند، صفحه سفید نمایش داده می‌شود
+            document.body.innerHTML = '<h1>خطا: مرورگر شما از این قابلیت پشتیبانی نمی‌کند.</h1>';
+        }
+    </script>
 </body>
 </html>
